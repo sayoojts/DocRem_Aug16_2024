@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="content-section">
+    <h1>Document Reminder</h1>
+    <p>Document Name: {{ scheduler.document_name }}</p>
+    <p>Expiry Date: {{ scheduler.expiry_date.strftime('%d-%B-%Y') }}</p>
+</div>
+{% endblock content %}
