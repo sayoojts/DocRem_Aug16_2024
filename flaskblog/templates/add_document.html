@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Add New Record</h2>
+    <form method="POST" action="{{ url_for('scheduler.add_record') }}">
+        {{ form.hidden_tag() }}  <!-- This includes the CSRF token -->
+        <div class="form-group">
+            <label for="document_name">Document Name</label>
+            {{ form.document_name(class_="form-control") }}
+        </div>
+        <div class="form-group">
+            <label for="expiry_date">Expiry Date</label>
+            {{ form.expiry_date(class_="form-control") }}
+        </div>
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{{ url_for('scheduler.remainder') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

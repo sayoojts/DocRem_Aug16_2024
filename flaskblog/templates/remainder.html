@@ -1,9 +1,90 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="content-section">
-    <h1>Document Reminder</h1>
-    <p>Document Name: {{ scheduler.document_name }}</p>
-    <p>Expiry Date: {{ scheduler.expiry_date.strftime('%d-%B-%Y') }}</p>
+<div class="container mt-4">
+    <div class="d-flex justify-content-end mb-3">
+        <!-- New Button -->
+        <a href="{{ url_for('scheduler.add_record') }}" class="btn btn-primary">
+            New
+        </a>
+    </div>
+
+    <!-- Table for displaying records -->
+    <table class="table table-bordered">
+        <thead class="thead-light">
+        <tr>
+            <th>Document Name</th>
+            <th>Expiry Date</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for record in records %}
+        <tr>
+            <td contenteditable="true" id="doc_name_{{ record.id }}">{{ record.document_name }}</td>
+            <td contenteditable="true" id="exp_date_{{ record.id }}">{{ record.expiry_date.strftime('%Y-%m-%d') }}</td>
+            <td>
+                <button class="btn btn-sm btn-success" onclick="updateRecord({{ record.id }})">
+                    <i class="fas fa-save"></i> Save
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteRecord({{ record.id }})">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
-{% endblock content %}
+
+<script>
+    function updateRecord(id) {
+        if (id) {
+            var docName = document.getElementById('doc_name_' + id).innerText;
+            var expDate = document.getElementById('exp_date_' + id).innerText;
+
+            fetch(`{{ url_for('scheduler.update_record', id=0) }}`.replace('0', id), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    'document_name': docName,
+                    'expiry_date': expDate
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Record updated successfully');
+                } else {
+                    alert('Failed to update record');
+                }
+            });
+        } else {
+            alert('Invalid record ID');
+        }
+    }
+
+    function deleteRecord(id) {
+        if (id) {
+            if (confirm('Are you sure you want to delete this record?')) {
+                fetch(`{{ url_for('scheduler.delete_record', id=0) }}`.replace('0', id), {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload(true); // Force reload from server
+                    } else {
+                        alert('Failed to delete record');
+                    }
+                });
+            }
+        } else {
+            alert('Invalid record ID');
+        }
+    }
+</script>
+
+{% endblock %}
